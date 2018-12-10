@@ -341,7 +341,6 @@ static void sock_free(struct sock *sock)
 {
 	if (unlikely(!sock))
 		return;
-	sk_clear_memalloc(sock);
 	udp_tunnel_sock_release(sock->sk_socket);
 }
 
@@ -349,7 +348,6 @@ static void set_sock_opts(struct socket *sock)
 {
 	sock->sk->sk_allocation = GFP_ATOMIC;
 	sock->sk->sk_sndbuf = INT_MAX;
-	sk_set_memalloc(sock->sk);
 }
 
 int wg_socket_init(struct wg_device *wg, u16 port)
