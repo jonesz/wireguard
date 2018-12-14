@@ -37,7 +37,8 @@ static const struct nla_policy peer_policy[WGPEER_A_MAX + 1] = {
 	[WGPEER_A_RX_BYTES]				= { .type = NLA_U64 },
 	[WGPEER_A_TX_BYTES]				= { .type = NLA_U64 },
 	[WGPEER_A_ALLOWEDIPS]				= { .type = NLA_NESTED },
-	[WGPEER_A_PROTOCOL_VERSION]			= { .type = NLA_U32 }
+	[WGPEER_A_PROTOCOL_VERSION]			= { .type = NLA_U32 },
+    [WGPEER_A_NEEDS_OBFUSCATION]        = { .type = NLA_FLAG }
 };
 
 static const struct nla_policy allowedip_policy[WGALLOWEDIP_A_MAX + 1] = {
@@ -126,6 +127,11 @@ static int get_peer(struct wg_peer *peer, struct allowedips_cursor *rt_cursor,
 				      WGPEER_A_UNSPEC) ||
 		    nla_put_u32(skb, WGPEER_A_PROTOCOL_VERSION, 1))
 			goto err;
+
+        /* TODO @jones: Synchronization primitive? */
+        if (peer->needs_obfuscation)
+            if (nla_put_flag(skb, WGPEER_A_NEEDS_OBFUSCATION))
+                goto err;
 
 		read_lock_bh(&peer->endpoint_lock);
 		if (peer->endpoint.addr.sa_family == AF_INET)
@@ -409,6 +415,11 @@ static int set_peer(struct wg_device *wg, struct nlattr **attrs)
 		       NOISE_SYMMETRIC_KEY_LEN);
 		up_write(&peer->handshake.lock);
 	}
+
+    /* TODO @jones: Synchronization? */
+    if (attrs[WGPEER_A_NEEDS_OBFUSCATION]) {
+        peer->needs_obfuscation = nla_get_flag(attrs[WGPEER_A_NEEDS_OBFUSCATION]);
+    }
 
 	if (attrs[WGPEER_A_ENDPOINT]) {
 		struct sockaddr *addr = nla_data(attrs[WGPEER_A_ENDPOINT]);
