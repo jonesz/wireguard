@@ -23,6 +23,8 @@ else
 offset-finder-m := offset-finder.o
 oldsrc := $(src)
 src := $(src)/../../../src
+kbuild-dir := $(src)
 include $(src)/compat/Kbuild.include
+include $(src)/crypto/Kbuild.include
 src := $(oldsrc)
 endif
