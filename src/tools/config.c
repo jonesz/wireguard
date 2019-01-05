@@ -415,7 +415,9 @@ static bool process_line(struct config_ctx *ctx, const char *line)
 			ret = parse_key(ctx->last_peer->preshared_key, value);
 			if (ret)
 				ctx->last_peer->flags |= WGPEER_HAS_PRESHARED_KEY;
-		} else
+		} else if (key_match("NeedsObfuscation"))
+            ctx->last_peer->flags |= WGPEER_NEEDS_OBFUSCATION;
+        else
 			goto error;
 	} else
 		goto error;
@@ -586,6 +588,10 @@ struct wgdevice *config_read_cmd(char *argv[], int argc)
 			peer->flags |= WGPEER_HAS_PRESHARED_KEY;
 			argv += 2;
 			argc -= 2;
+        } else if (!strcmp(argv[0], "obfuscate") && argc >= 1 && peer) {
+            peer->flags |= WGPEER_NEEDS_OBFUSCATION;
+            argv += 1;
+            argc -= 1;
 		} else {
 			fprintf(stderr, "Invalid argument: %s\n", argv[0]);
 			goto error;

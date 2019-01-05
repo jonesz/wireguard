@@ -91,6 +91,8 @@ int showconf_main(int argc, char *argv[])
 
 		if (peer->persistent_keepalive_interval)
 			printf("PersistentKeepalive = %u\n", peer->persistent_keepalive_interval);
+        if (peer->flags & WGPEER_NEEDS_OBFUSCATION)
+            printf("NeedsObfuscation = True\n");
 
 		if (peer->next_peer)
 			printf("\n");
